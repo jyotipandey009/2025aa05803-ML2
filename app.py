@@ -26,17 +26,17 @@ try:
 except FileNotFoundError:
     st.warning("Balanced test_data.csv not found in repo.")
 
-# --- Upload for Evaluation ---
-uploaded_file = st.file_uploader("Upload balanced test_data.csv for evaluation", type="csv")
+# --- Upload for Evaluation (Sidebar) ---
+uploaded_file = st.sidebar.file_uploader("Upload balanced test_data.csv for evaluation", type="csv")
 if uploaded_file is not None:
     test_df = pd.read_csv(uploaded_file)
     st.write("Test data shape:", test_df.shape)
     st.write("Class distribution:", test_df["Class"].value_counts())
 
     X_test = test_df.drop("Class", axis=1)
-    y_test = test_df["Class"]
+    y_test = test_df["Class"].astype(str)  # ensure string type
 
-    model_choice = st.selectbox(
+    model_choice = st.sidebar.selectbox(
         "Select a model",
         ["Logistic Regression", "Decision Tree", "KNN", "Naive Bayes", "Random Forest", "XGBoost"]
     )
@@ -45,16 +45,18 @@ if uploaded_file is not None:
     try:
         model = joblib.load(model_path)
 
-        # Load label encoder and decode predictions back to class names
+        # Load label encoder
         try:
             label_encoder = joblib.load("model/label_encoder.pkl")
             y_pred = model.predict(X_test)
+            # Decode predictions back to original class names
             y_pred_decoded = label_encoder.inverse_transform(y_pred)
-            y_test_decoded = y_test.astype(str)  # ensure string type
+            y_test_decoded = y_test
             class_names = label_encoder.classes_
         except Exception:
+            # Fallback if encoder not available
             y_pred_decoded = model.predict(X_test).astype(str)
-            y_test_decoded = y_test.astype(str)
+            y_test_decoded = y_test
             class_names = sorted(pd.unique(y_test_decoded))
 
         st.subheader("Evaluation Metrics")
@@ -64,9 +66,11 @@ if uploaded_file is not None:
         st.write("F1 Score:", f1_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0))
         st.write("MCC:", matthews_corrcoef(y_test_decoded, y_pred_decoded))
 
+        # AUC requires numeric labels
         try:
             y_proba = model.predict_proba(X_test)
-            st.write("AUC:", roc_auc_score(label_encoder.transform(y_test_decoded), y_proba, multi_class="ovr"))
+            y_test_enc = label_encoder.transform(y_test_decoded)
+            st.write("AUC:", roc_auc_score(y_test_enc, y_proba, multi_class="ovr"))
         except Exception:
             st.write("AUC not available for this model")
 
@@ -82,4 +86,4 @@ if uploaded_file is not None:
     except FileNotFoundError:
         st.error(f"Model file not found: {model_path}. Please add it to the repo.")
 else:
-    st.info("Please upload your balanced test_data.csv to proceed.")
+    st.info("Please upload your balanced test_data.csv using the sidebar to proceed.")
