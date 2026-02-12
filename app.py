@@ -12,11 +12,10 @@ st.title("Dry Bean Classification - ML Assignment 2")
 
 # --- Download Balanced Test Dataset ---
 try:
-    test_df_sample = pd.read_csv("test_data.csv")   # adjust path if needed
+    test_df_sample = pd.read_csv("data/test_data.csv")
     st.subheader("Balanced Test Data Preview")
     st.dataframe(test_df_sample.head())
 
-    # Download button for test dataset
     csv_test = test_df_sample.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="Download Balanced Test Dataset",
@@ -46,35 +45,31 @@ if uploaded_file is not None:
     try:
         model = joblib.load(model_path)
 
-        # Load label encoder to ensure consistent label types
-        try:
-            label_encoder = joblib.load("model/label_encoder.pkl")
-            y_test_enc = label_encoder.transform(y_test)
-            y_pred_enc = label_encoder.transform(model.predict(X_test))
-            class_names = label_encoder.classes_
-        except Exception:
-            y_test_enc = y_test
-            y_pred_enc = model.predict(X_test)
-            class_names = sorted(pd.unique(y_test))
+        y_pred = model.predict(X_test)
+
+        # Force both true and predicted labels to strings
+        y_test_str = y_test.astype(str)
+        y_pred_str = pd.Series(y_pred).astype(str)
 
         st.subheader("Evaluation Metrics")
-        st.write("Accuracy:", accuracy_score(y_test_enc, y_pred_enc))
-        st.write("Precision:", precision_score(y_test_enc, y_pred_enc, average="weighted", zero_division=0))
-        st.write("Recall:", recall_score(y_test_enc, y_pred_enc, average="weighted", zero_division=0))
-        st.write("F1 Score:", f1_score(y_test_enc, y_pred_enc, average="weighted", zero_division=0))
-        st.write("MCC:", matthews_corrcoef(y_test_enc, y_pred_enc))
+        st.write("Accuracy:", accuracy_score(y_test_str, y_pred_str))
+        st.write("Precision:", precision_score(y_test_str, y_pred_str, average="weighted", zero_division=0))
+        st.write("Recall:", recall_score(y_test_str, y_pred_str, average="weighted", zero_division=0))
+        st.write("F1 Score:", f1_score(y_test_str, y_pred_str, average="weighted", zero_division=0))
+        st.write("MCC:", matthews_corrcoef(y_test_str, y_pred_str))
 
         try:
             y_proba = model.predict_proba(X_test)
-            st.write("AUC:", roc_auc_score(y_test_enc, y_proba, multi_class="ovr"))
+            st.write("AUC:", roc_auc_score(y_test_str, y_proba, multi_class="ovr"))
         except Exception:
             st.write("AUC not available for this model")
 
         st.subheader("Confusion Matrix")
-        cm = confusion_matrix(y_test_enc, y_pred_enc)
+        cm = confusion_matrix(y_test_str, y_pred_str, labels=sorted(pd.unique(y_test_str)))
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax,
-                    xticklabels=class_names, yticklabels=class_names)
+                    xticklabels=sorted(pd.unique(y_test_str)),
+                    yticklabels=sorted(pd.unique(y_test_str)))
         ax.set_xlabel("Predicted")
         ax.set_ylabel("True")
         st.pyplot(fig)
