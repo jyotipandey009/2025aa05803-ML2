@@ -12,7 +12,7 @@ st.title("Dry Bean Classification - ML Assignment 2")
 
 # --- Download Balanced Test Dataset ---
 try:
-    test_df_sample = pd.read_csv("data/test_data.csv")   # adjust path if needed
+    test_df_sample = pd.read_csv("test_data.csv")   # adjust path if needed
     st.subheader("Balanced Test Data Preview")
     st.dataframe(test_df_sample.head())
 
