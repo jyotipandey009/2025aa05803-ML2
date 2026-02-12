@@ -36,9 +36,12 @@ model_choice = st.sidebar.selectbox(
 if uploaded_file is not None:
     test_df = pd.read_csv(uploaded_file)
     st.write("Test data shape:", test_df.shape)
-    st.subheader("Class Distribution (Balanced Test Set)")
-    st.table(test_df["Class"].value_counts().reset_index().rename(columns={"index":"Class","Class":"Count"}))
 
+    # --- Compact Class Distribution Table ---
+    st.subheader("Class Distribution (Balanced Test Set)")
+    class_dist = test_df["Class"].value_counts().reset_index()
+    class_dist.columns = ["Class", "Count"]
+    st.table(class_dist)
 
     # Separate features and labels
     X_test = test_df.drop("Class", axis=1)
@@ -68,21 +71,35 @@ if uploaded_file is not None:
             y_test_decoded = y_test
             class_names = sorted(pd.unique(y_test_decoded))
 
-        # --- Metrics ---
+        # --- Metrics Table ---
         st.subheader("Evaluation Metrics")
-        st.write("Accuracy:", accuracy_score(y_test_decoded, y_pred_decoded))
-        st.write("Precision:", precision_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0))
-        st.write("Recall:", recall_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0))
-        st.write("F1 Score:", f1_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0))
-        st.write("MCC:", matthews_corrcoef(y_test_decoded, y_pred_decoded))
+        metrics_data = {
+            "Accuracy": accuracy_score(y_test_decoded, y_pred_decoded),
+            "Precision": precision_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0),
+            "Recall": recall_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0),
+            "F1 Score": f1_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0),
+            "MCC": matthews_corrcoef(y_test_decoded, y_pred_decoded)
+        }
 
-        # AUC requires numeric labels
         try:
             y_proba = model.predict_proba(X_test_scaled)
             y_test_enc = label_encoder.transform(y_test_decoded)
-            st.write("AUC:", roc_auc_score(y_test_enc, y_proba, multi_class="ovr"))
+            metrics_data["AUC"] = roc_auc_score(y_test_enc, y_proba, multi_class="ovr")
         except Exception:
-            st.write("AUC not available for this model")
+            metrics_data["AUC"] = "N/A"
+
+        metrics_df = pd.DataFrame(metrics_data.items(), columns=["Metric", "Value"])
+        st.table(metrics_df)
+
+        # --- Metrics Visualization ---
+        st.subheader("Metrics Visualization")
+        fig, ax = plt.subplots(figsize=(8, 5))
+        metrics_plot = metrics_df[metrics_df["Value"] != "N/A"]  # exclude N/A
+        sns.barplot(x="Metric", y="Value", data=metrics_plot, ax=ax, palette="viridis")
+        ax.set_ylim(0, 1)
+        ax.set_ylabel("Score")
+        ax.set_title("Model Performance Metrics")
+        st.pyplot(fig)
 
         # --- Confusion Matrix ---
         st.subheader("Confusion Matrix")
