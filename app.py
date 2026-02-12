@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 st.title("Dry Bean Classification - ML Assignment 2")
 
-# --- Balanced Test Data Section ---
+# --- Download Balanced Test Dataset ---
 try:
     test_df = pd.read_csv("data/test_data.csv")   # adjust path if needed
     st.subheader("Balanced Test Data Preview")
@@ -25,30 +25,9 @@ try:
         mime="text/csv",
     )
 except FileNotFoundError:
-    st.warning("Balanced test_data.csv not found. Please add it to the repo.")
+    st.warning("Balanced test_data.csv not found in repo.")
 
-# --- Model Comparison Table Section ---
-try:
-    comparison_df = pd.read_csv("model/model_comparison.csv")
-    st.subheader("Model Comparison Table")
-    st.dataframe(comparison_df.style.format("{:.4f}"))
-
-    # Download button for comparison table
-    csv_comp = comparison_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="Download Model Comparison Table",
-        data=csv_comp,
-        file_name="model_comparison.csv",
-        mime="text/csv",
-    )
-
-    # Plot Accuracy & F1 Score
-    st.subheader("Accuracy & F1 Score Comparison")
-    st.bar_chart(comparison_df.set_index("Model")[["Accuracy", "F1 Score"]])
-except FileNotFoundError:
-    st.warning("model_comparison.csv not found. Please add it to the repo.")
-
-# --- Interactive Model Evaluation Section ---
+# --- Upload for Evaluation ---
 uploaded_file = st.file_uploader("Upload balanced test_data.csv for evaluation", type="csv")
 if uploaded_file is not None:
     test_df = pd.read_csv(uploaded_file)
@@ -76,7 +55,6 @@ if uploaded_file is not None:
         st.write("F1 Score:", f1_score(y_test, y_pred, average="weighted"))
         st.write("MCC:", matthews_corrcoef(y_test, y_pred))
 
-        # AUC (multi-class support)
         try:
             y_proba = model.predict_proba(X_test)
             st.write("AUC:", roc_auc_score(y_test, y_proba, multi_class="ovr"))
@@ -91,3 +69,5 @@ if uploaded_file is not None:
 
     except FileNotFoundError:
         st.error(f"Model file not found: {model_path}. Please add it to the repo.")
+else:
+    st.info("Please upload your balanced test_data.csv to proceed.")
