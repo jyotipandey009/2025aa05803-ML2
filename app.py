@@ -95,7 +95,7 @@ if uploaded_file is not None:
         st.subheader("Metrics Visualization")
         fig, ax = plt.subplots(figsize=(8, 5))
         metrics_plot = metrics_df[metrics_df["Value"] != "N/A"]  # exclude N/A
-        sns.barplot(x="Metric", y="Value", data=metrics_plot, ax=ax, color="blue")
+        sns.barplot(x="Metric", y="Value", data=metrics_plot, ax=ax, color="lightblue")
         ax.set_ylim(0, 1)
         ax.set_ylabel("Score")
         ax.set_title("Model Performance Metrics")
