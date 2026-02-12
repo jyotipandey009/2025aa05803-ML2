@@ -12,7 +12,7 @@ st.title("Dry Bean Classification - ML Assignment 2")
 
 # --- Download Balanced Test Dataset ---
 try:
-    test_df_sample = pd.read_csv("test_data.csv")
+    test_df_sample = pd.read_csv("data/test_data.csv")
     st.subheader("Balanced Test Data Preview")
     st.dataframe(test_df_sample.head())
 
@@ -28,6 +28,11 @@ except FileNotFoundError:
 
 # --- Upload for Evaluation (Sidebar) ---
 uploaded_file = st.sidebar.file_uploader("Upload balanced test_data.csv for evaluation", type="csv")
+model_choice = st.sidebar.selectbox(
+    "Select a model",
+    ["Logistic Regression", "Decision Tree", "KNN", "Naive Bayes", "Random Forest", "XGBoost"]
+)
+
 if uploaded_file is not None:
     test_df = pd.read_csv(uploaded_file)
     st.write("Test data shape:", test_df.shape)
@@ -36,29 +41,23 @@ if uploaded_file is not None:
     X_test = test_df.drop("Class", axis=1)
     y_test = test_df["Class"].astype(str)  # ensure string type
 
-    model_choice = st.sidebar.selectbox(
-        "Select a model",
-        ["Logistic Regression", "Decision Tree", "KNN", "Naive Bayes", "Random Forest", "XGBoost"]
-    )
-
     model_path = f"model/{model_choice.replace(' ', '_').lower()}.pkl"
     try:
         model = joblib.load(model_path)
 
-        # Load label encoder
+        # Load label encoder and decode predictions
         try:
             label_encoder = joblib.load("model/label_encoder.pkl")
             y_pred = model.predict(X_test)
-            # Decode predictions back to original class names
             y_pred_decoded = label_encoder.inverse_transform(y_pred)
             y_test_decoded = y_test
             class_names = label_encoder.classes_
         except Exception:
-            # Fallback if encoder not available
             y_pred_decoded = model.predict(X_test).astype(str)
             y_test_decoded = y_test
             class_names = sorted(pd.unique(y_test_decoded))
 
+        # --- Metrics ---
         st.subheader("Evaluation Metrics")
         st.write("Accuracy:", accuracy_score(y_test_decoded, y_pred_decoded))
         st.write("Precision:", precision_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0))
@@ -74,6 +73,7 @@ if uploaded_file is not None:
         except Exception:
             st.write("AUC not available for this model")
 
+        # --- Confusion Matrix ---
         st.subheader("Confusion Matrix")
         cm = confusion_matrix(y_test_decoded, y_pred_decoded, labels=class_names)
         fig, ax = plt.subplots(figsize=(8, 6))
