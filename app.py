@@ -45,31 +45,36 @@ if uploaded_file is not None:
     try:
         model = joblib.load(model_path)
 
-        y_pred = model.predict(X_test)
-
-        # Force both true and predicted labels to strings
-        y_test_str = y_test.astype(str)
-        y_pred_str = pd.Series(y_pred).astype(str)
+        # Load label encoder and decode predictions back to class names
+        try:
+            label_encoder = joblib.load("model/label_encoder.pkl")
+            y_pred = model.predict(X_test)
+            y_pred_decoded = label_encoder.inverse_transform(y_pred)
+            y_test_decoded = y_test.astype(str)  # ensure string type
+            class_names = label_encoder.classes_
+        except Exception:
+            y_pred_decoded = model.predict(X_test).astype(str)
+            y_test_decoded = y_test.astype(str)
+            class_names = sorted(pd.unique(y_test_decoded))
 
         st.subheader("Evaluation Metrics")
-        st.write("Accuracy:", accuracy_score(y_test_str, y_pred_str))
-        st.write("Precision:", precision_score(y_test_str, y_pred_str, average="weighted", zero_division=0))
-        st.write("Recall:", recall_score(y_test_str, y_pred_str, average="weighted", zero_division=0))
-        st.write("F1 Score:", f1_score(y_test_str, y_pred_str, average="weighted", zero_division=0))
-        st.write("MCC:", matthews_corrcoef(y_test_str, y_pred_str))
+        st.write("Accuracy:", accuracy_score(y_test_decoded, y_pred_decoded))
+        st.write("Precision:", precision_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0))
+        st.write("Recall:", recall_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0))
+        st.write("F1 Score:", f1_score(y_test_decoded, y_pred_decoded, average="weighted", zero_division=0))
+        st.write("MCC:", matthews_corrcoef(y_test_decoded, y_pred_decoded))
 
         try:
             y_proba = model.predict_proba(X_test)
-            st.write("AUC:", roc_auc_score(y_test_str, y_proba, multi_class="ovr"))
+            st.write("AUC:", roc_auc_score(label_encoder.transform(y_test_decoded), y_proba, multi_class="ovr"))
         except Exception:
             st.write("AUC not available for this model")
 
         st.subheader("Confusion Matrix")
-        cm = confusion_matrix(y_test_str, y_pred_str, labels=sorted(pd.unique(y_test_str)))
+        cm = confusion_matrix(y_test_decoded, y_pred_decoded, labels=class_names)
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax,
-                    xticklabels=sorted(pd.unique(y_test_str)),
-                    yticklabels=sorted(pd.unique(y_test_str)))
+                    xticklabels=class_names, yticklabels=class_names)
         ax.set_xlabel("Predicted")
         ax.set_ylabel("True")
         st.pyplot(fig)
