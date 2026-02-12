@@ -84,7 +84,8 @@ if uploaded_file is not None:
             # Evaluation Metrics
             st.header("Evaluation Metrics")
             report = classification_report(y_true, y_pred, output_dict=True)
-            st.dataframe(pd.DataFrame(report).transpose())
+            report_df = pd.DataFrame(report).transpose()
+            st.dataframe(report_df)
 
             # Confusion Matrix
             st.header("Confusion Matrix")
@@ -94,6 +95,17 @@ if uploaded_file is not None:
             ax.set_xlabel("Predicted")
             ax.set_ylabel("True")
             st.pyplot(fig)
+
+            # Metrics Visualization (after confusion matrix)
+            st.header("Metrics Visualization")
+            metrics_to_plot = report_df.drop(index=["accuracy", "macro avg", "weighted avg"])
+            fig, ax = plt.subplots(figsize=(8, 5))
+            metrics_to_plot[["precision", "recall", "f1-score"]].plot(kind="bar", ax=ax)
+            plt.xticks(rotation=45, ha="right")
+            plt.ylabel("Score")
+            plt.title("Precision, Recall, F1-score per Class")
+            st.pyplot(fig)
+
         else:
             st.warning("No 'label' column found in uploaded CSV. Metrics and confusion matrix require true labels.")
     else:
