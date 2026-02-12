@@ -13,7 +13,7 @@ st.set_page_config(page_title="Dry Bean Classification", layout="wide")
 st.title("ML Assignment 2 – Dry Bean Classification Models")
 
 st.markdown("""
-Upload a small test dataset, select a trained model, and view predictions, 
+Upload a test dataset, select a trained model, and view predictions, 
 evaluation metrics, confusion matrix, and classification report.
 """)
 
@@ -24,7 +24,7 @@ st.sidebar.header("Controls")
 
 # Dataset Upload in sidebar
 uploaded_file = st.sidebar.file_uploader(
-    "Upload a CSV file with features (and optional 'label' column)",
+    "Upload a CSV file with features (and optional 'Class' column)",
     type=["csv"]
 )
 
@@ -35,17 +35,18 @@ model_choice = st.sidebar.selectbox(
 )
 
 # Provide Sample Dataset Download in sidebar
-sample_csv = """Area,Perimeter,MajorAxisLength,MinorAxisLength,AspectRation,Eccentricity,ConvexArea,EquivDiameter,Extent,Solidity,Roundness,Compactness,ShapeFactor1,ShapeFactor2,ShapeFactor3,ShapeFactor4,label
-1500,150,50,30,1.67,0.75,1520,43.6,0.85,0.98,0.84,0.92,0.78,0.85,0.91,0.88,KidneyBean
-2000,180,60,35,1.71,0.77,2025,50.5,0.87,0.97,0.82,0.91,0.79,0.86,0.90,0.89,BlackBean
-2500,200,70,40,1.75,0.79,2550,56.4,0.88,0.96,0.81,0.90,0.80,0.87,0.89,0.90,BombayBean
-"""
-st.sidebar.download_button(
-    label="Download sample test_data.csv",
-    data=sample_csv,
-    file_name="test_data.csv",
-    mime="text/csv"
-)
+# Load your prepared 600-row subset (test_data.csv) and embed it
+try:
+    with open("test_data.csv", "r") as f:
+        sample_csv = f.read()
+    st.sidebar.download_button(
+        label="Download test_data.csv",
+        data=sample_csv,
+        file_name="test_data.csv",
+        mime="text/csv"
+    )
+except FileNotFoundError:
+    st.sidebar.warning("test_data.csv not found in repo. Please generate it first.")
 
 # -------------------------------
 # Map model names to filenames
@@ -70,15 +71,15 @@ if uploaded_file is not None:
     model_path = f"model/{model_map[model_choice]}"
     if os.path.exists(model_path):
         model = joblib.load(model_path)
-        X = data.drop(columns=["label"], errors="ignore")
+        X = data.drop(columns=["Class"], errors="ignore")
         predictions = model.predict(X)
 
         st.subheader("Predictions")
         st.write(predictions)
 
         # If true labels are present in uploaded file
-        if "label" in data.columns:
-            y_true = data["label"].astype(str)
+        if "Class" in data.columns:
+            y_true = data["Class"].astype(str)
             y_pred = pd.Series(predictions).astype(str)
 
             # Evaluation Metrics
@@ -107,6 +108,6 @@ if uploaded_file is not None:
             st.pyplot(fig)
 
         else:
-            st.warning("No 'label' column found in uploaded CSV. Metrics and confusion matrix require true labels.")
+            st.warning("No 'Class' column found in uploaded CSV. Metrics and confusion matrix require true labels.")
     else:
         st.error(f"Model file not found: {model_path}")
