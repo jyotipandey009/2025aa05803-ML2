@@ -38,8 +38,17 @@ if uploaded_file is not None:
     st.write("Test data shape:", test_df.shape)
     st.write("Class distribution:", test_df["Class"].value_counts())
 
+    # Separate features and labels
     X_test = test_df.drop("Class", axis=1)
-    y_test = test_df["Class"].astype(str)  # ensure string type
+    y_test = test_df["Class"].astype(str)
+
+    # Load scaler and apply scaling
+    try:
+        scaler = joblib.load("model/scaler.pkl")
+        X_test_scaled = scaler.transform(X_test)
+    except Exception:
+        st.error("Scaler not found. Please ensure scaler.pkl is saved in model/ folder.")
+        X_test_scaled = X_test
 
     model_path = f"model/{model_choice.replace(' ', '_').lower()}.pkl"
     try:
@@ -48,12 +57,12 @@ if uploaded_file is not None:
         # Load label encoder and decode predictions
         try:
             label_encoder = joblib.load("model/label_encoder.pkl")
-            y_pred = model.predict(X_test)
+            y_pred = model.predict(X_test_scaled)
             y_pred_decoded = label_encoder.inverse_transform(y_pred)
             y_test_decoded = y_test
             class_names = label_encoder.classes_
         except Exception:
-            y_pred_decoded = model.predict(X_test).astype(str)
+            y_pred_decoded = model.predict(X_test_scaled).astype(str)
             y_test_decoded = y_test
             class_names = sorted(pd.unique(y_test_decoded))
 
@@ -67,7 +76,7 @@ if uploaded_file is not None:
 
         # AUC requires numeric labels
         try:
-            y_proba = model.predict_proba(X_test)
+            y_proba = model.predict_proba(X_test_scaled)
             y_test_enc = label_encoder.transform(y_test_decoded)
             st.write("AUC:", roc_auc_score(y_test_enc, y_proba, multi_class="ovr"))
         except Exception:
