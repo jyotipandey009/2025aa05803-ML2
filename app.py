@@ -91,11 +91,11 @@ if uploaded_file is not None:
         metrics_df = pd.DataFrame(metrics_data.items(), columns=["Metric", "Value"])
         st.table(metrics_df)
 
-        # --- Metrics Visualization ---
+        # --- Metrics Visualization (Blue Bar Chart) ---
         st.subheader("Metrics Visualization")
         fig, ax = plt.subplots(figsize=(8, 5))
         metrics_plot = metrics_df[metrics_df["Value"] != "N/A"]  # exclude N/A
-        sns.barplot(x="Metric", y="Value", data=metrics_plot, ax=ax, palette="viridis")
+        sns.barplot(x="Metric", y="Value", data=metrics_plot, ax=ax, color="blue")
         ax.set_ylim(0, 1)
         ax.set_ylabel("Score")
         ax.set_title("Model Performance Metrics")
