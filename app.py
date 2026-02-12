@@ -36,7 +36,9 @@ model_choice = st.sidebar.selectbox(
 if uploaded_file is not None:
     test_df = pd.read_csv(uploaded_file)
     st.write("Test data shape:", test_df.shape)
-    st.write("Class distribution:", test_df["Class"].value_counts())
+    st.subheader("Class Distribution (Balanced Test Set)")
+    st.table(test_df["Class"].value_counts().reset_index().rename(columns={"index":"Class","Class":"Count"}))
+
 
     # Separate features and labels
     X_test = test_df.drop("Class", axis=1)
