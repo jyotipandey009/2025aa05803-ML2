@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 import os
+import json
 from sklearn.metrics import classification_report, confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -35,7 +36,6 @@ model_choice = st.sidebar.selectbox(
 )
 
 # Provide Sample Dataset Download in sidebar
-# Load your prepared 600-row subset (test_data.csv) and embed it
 try:
     with open("test_data.csv", "r") as f:
         sample_csv = f.read()
@@ -69,10 +69,24 @@ if uploaded_file is not None:
     st.dataframe(data.head())
 
     model_path = f"model/{model_map[model_choice]}"
+    scaler_path = "model/scaler.pkl"
+    encoder_path = "model/label_encoder.pkl"
+
     if os.path.exists(model_path):
         model = joblib.load(model_path)
+
+        # Apply scaler if available
         X = data.drop(columns=["Class"], errors="ignore")
+        if os.path.exists(scaler_path):
+            scaler = joblib.load(scaler_path)
+            X = scaler.transform(X)
+
         predictions = model.predict(X)
+
+        # Decode predictions back to class names if encoder exists
+        if os.path.exists(encoder_path):
+            encoder = joblib.load(encoder_path)
+            predictions = encoder.inverse_transform(predictions)
 
         st.subheader("Predictions")
         st.write(predictions)
