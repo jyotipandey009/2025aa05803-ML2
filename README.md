@@ -1,9 +1,9 @@
 # Dry Bean Classification – ML Assignment 2
 
 ## 📌 Problem Statement
-The goal of this assignment is to classify different types of dry beans using machine learning models.  
-We train and evaluate six models on the Dry Bean dataset and compare their performance using standard metrics.  
-Finally, we deploy a Streamlit app that allows interactive evaluation on a balanced test dataset.
+This assignment focuses on classifying various types of dry beans using machine learning techniques. 
+Six different models are trained and evaluated on the Dry Bean dataset, with their performance compared across standard metrics. 
+The project concludes with the deployment of a Streamlit application that enables interactive testing on a balanced dataset.
 
 ---
 
