@@ -97,9 +97,9 @@ Finally, we deploy a Streamlit app that allows interactive evaluation on a balan
 7. Click **Deploy**
 
 ---
-## Deployment
+## Deployment 
 ## Streamlit Live App 
 https://2025aa05803-ml2-ko7anruhtfgheva8oxmt6b.streamlit.app/
 
 ## Github Repository
-
+https://github.com/jyotipandey009/2025aa05803-ML2
