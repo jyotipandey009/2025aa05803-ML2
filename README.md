@@ -11,7 +11,7 @@ Finally, we deploy a Streamlit app that allows interactive evaluation on a balan
 - **Dataset:** Dry Bean Dataset 
 - **Dataset Source:** Kaggle  
 - **Instances in Balanced Test Set:** 595 (85 samples × 7 classes)  
-- **Features:** 16 numerical attributes (Area, Perimeter, MajorAxisLength, MinorAxisLength, AspectRatio, Eccentricity, ConvexArea, EquivalentDiameter, Extent, Solidity, Roundness, Compactness, ShapeFactor1–4, etc.)  
+- **Features:** 17 numerical attributes (Area, Perimeter, MajorAxisLength, MinorAxisLength, AspectRatio, Eccentricity, ConvexArea, EquivalentDiameter, Extent, Solidity, Roundness, Compactness, ShapeFactor1–4, etc.)  
 - **Target Classes:** 7 bean types (`BARBUNYA`, `BOMBAY`, `CALI`, `DERMASON`, `HOROZ`, `SEKER`, `SIRA`)  
 
 ### Class Distribution (Balanced Test Set)
