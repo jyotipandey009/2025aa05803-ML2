@@ -86,13 +86,20 @@ Finally, we deploy a Streamlit app that allows interactive evaluation on a balan
     │   │-- random_forest_metrics.json
     │   │-- xgboost_metrics.json
     
-## 🚀 Streamlit App Features
-- Upload test dataset (CSV)  
-- Select model from dropdown  
-- Display:  
-  - Evaluation metrics (Accuracy, AUC, Precision, Recall, F1, MCC)  
-  - Confusion matrix  
-  - Predictions  
+## 🌐 How to Deploy on Streamlit Community Cloud
+
+1. Go to [https://streamlit.io/cloud](https://streamlit.io/cloud)  
+2. Sign in using your GitHub account  
+3. Click **“New App”**  
+4. Select your repository  
+5. Choose branch (usually `main`)  
+6. Select `app.py`  
+7. Click **Deploy**
 
 ---
+## Deployment
+## Streamlit Live App 
+https://2025aa05803-ml2-ko7anruhtfgheva8oxmt6b.streamlit.app/
+
+## Github Repository
 
