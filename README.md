@@ -64,29 +64,28 @@ Finally, we deploy a Streamlit app that allows interactive evaluation on a balan
 
 ## 📂 Repository Structure
 
-project-folder/
+
+|-- 2025aa05803-ML2/
+
     │-- app.py
     │-- requirements.txt
     │-- README.md
     │-- 2025aa05803_ML_Assignment2.ipynb
     │-- test_data.csv
-    │
     │-- model/                     # Saved models + metrics
-    │   -- logistic_regression.pkl
-    │   -- decision_tree.pkl
-    │   -- knn.pkl
-    │   -- naive_bayes.pkl
-    │   -- random_forest.pkl
-    │   -- xgboost.pkl
-    │   -- logistic_regression_metrics.json
-    │   -- decision_tree_metrics.json
-    │   -- knn_metrics.json
-    │   -- naive_bayes_metrics.json
-    │   -- random_forest_metrics.json
-    │   -- xgboost_metrics.json
-    │
-        │-- test_data.csv
-
+    │   │-- logistic_regression.pkl
+    │   │-- decision_tree.pkl
+    │   │-- knn.pkl
+    │   │-- naive_bayes.pkl
+    │   │-- random_forest.pkl
+    │   │-- xgboost.pkl
+    │   │-- logistic_regression_metrics.json
+    │   │-- decision_tree_metrics.json
+    │   │-- knn_metrics.json
+    │   │-- naive_bayes_metrics.json
+    │   │-- random_forest_metrics.json
+    │   │-- xgboost_metrics.json
+    
 ## 🚀 Streamlit App Features
 - Upload test dataset (CSV)  
 - Select model from dropdown  
